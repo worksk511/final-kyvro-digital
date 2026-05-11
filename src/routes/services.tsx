@@ -108,7 +108,7 @@ function ServicesPage() {
       {/* BOTTOM CTA */}
       <section className="bg-foreground">
         <div className="container-luxe py-16 md:py-20 text-center">
-          <Eyebrow className="text-background/50">Get started</Eyebrow>
+          <span className="eyebrow text-background/50">Get started</span>
           <h2 className="mt-4 text-3xl font-semibold tracking-tight text-background md:text-4xl">
             Not sure which service you need?
           </h2>
