@@ -5,16 +5,16 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Kyvro Digital — Modern Premium Digital Studio
+ * Kyvro Digital — Premium Boutique Digital Studio
  *
- * Palette:
- *  - Background: warm off-white #FAFAF7
- *  - Foreground: near-black #0B0B0C
- *  - Surface:    light beige  #F2F1EC
- *  - Border:     soft grey    #E5E4DF
- *  - Muted text: warm grey    #6B6B66
- *  - Accent:     muted champagne (used very sparingly)
- *  - Dark surface for contrast sections
+ * Palette (upgraded):
+ *  - Background: warm off-white     #FAFAF7
+ *  - Foreground: near-black         #0B0B0C
+ *  - Surface:    warm beige         #F2F1EC
+ *  - Border:     soft grey          #E5E4DF
+ *  - Muted text: warm grey          #6B6B66
+ *  - Accent:     rich amber-gold    — distinctive, premium, warm
+ *  - Dark mode:  deep charcoal base
  */
 
 @theme inline {
@@ -52,56 +52,62 @@
 :root {
   --radius: 0.5rem;
 
-  /* Brand tokens */
-  --ink: oklch(0.16 0.005 60);
-  --paper: oklch(0.985 0.005 90);
-  --surface-soft: oklch(0.955 0.008 85);
-  --line: oklch(0.9 0.008 80);
-  --accent-champagne: oklch(0.74 0.07 75);
-  --accent-champagne-soft: oklch(0.92 0.025 80);
+  /* ── Brand tokens ─────────────────────────────────────── */
+  --ink:          oklch(0.14 0.006 60);
+  --paper:        oklch(0.988 0.004 90);
+  --surface-soft: oklch(0.958 0.007 85);
 
-  /* Semantic mapping */
-  --background: var(--paper);
-  --foreground: var(--ink);
-  --surface: var(--surface-soft);
-  --card: oklch(1 0 0);
-  --card-foreground: var(--ink);
-  --popover: oklch(1 0 0);
-  --popover-foreground: var(--ink);
-  --primary: var(--ink);
-  --primary-foreground: var(--paper);
-  --secondary: var(--surface-soft);
-  --secondary-foreground: var(--ink);
-  --muted: oklch(0.94 0.006 80);
-  --muted-foreground: oklch(0.5 0.008 70);
-  --accent: var(--accent-champagne);
-  --accent-soft: var(--accent-champagne-soft);
-  --accent-foreground: var(--ink);
-  --destructive: oklch(0.55 0.18 25);
+  /* Borders & muted */
+  --line:         oklch(0.905 0.007 80);
+
+  /* ── Accent: rich amber-gold (upgraded from champagne) ── */
+  /* Warm, distinctive, premium — like aged whisky or gold leaf */
+  --accent-gold:       oklch(0.68 0.13 68);
+  --accent-gold-hover: oklch(0.62 0.14 66);
+  --accent-gold-soft:  oklch(0.94 0.04 80);
+
+  /* ── Semantic mapping ────────────────────────────────── */
+  --background:          var(--paper);
+  --foreground:          var(--ink);
+  --surface:             var(--surface-soft);
+  --card:                oklch(1 0 0);
+  --card-foreground:     var(--ink);
+  --popover:             oklch(1 0 0);
+  --popover-foreground:  var(--ink);
+  --primary:             var(--ink);
+  --primary-foreground:  var(--paper);
+  --secondary:           var(--surface-soft);
+  --secondary-foreground:var(--ink);
+  --muted:               oklch(0.94 0.005 82);
+  --muted-foreground:    oklch(0.52 0.010 70);
+  --accent:              var(--accent-gold);
+  --accent-soft:         var(--accent-gold-soft);
+  --accent-foreground:   oklch(1 0 0);
+  --destructive:         oklch(0.55 0.18 25);
   --destructive-foreground: oklch(0.985 0.008 85);
-  --border: var(--line);
-  --input: var(--line);
-  --ring: var(--ink);
+  --border:              var(--line);
+  --input:               var(--line);
+  --ring:                var(--ink);
 }
 
 .dark {
-  --background: var(--ink);
-  --foreground: var(--paper);
-  --card: oklch(0.22 0.005 60);
-  --card-foreground: var(--paper);
-  --popover: oklch(0.22 0.005 60);
-  --popover-foreground: var(--paper);
-  --primary: var(--paper);
-  --primary-foreground: var(--ink);
-  --secondary: oklch(0.24 0.005 60);
-  --secondary-foreground: var(--paper);
-  --muted: oklch(0.26 0.005 60);
-  --muted-foreground: oklch(0.7 0.008 70);
-  --accent: var(--accent-champagne);
-  --accent-foreground: var(--ink);
-  --border: oklch(1 0 0 / 12%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: var(--paper);
+  --background:          var(--ink);
+  --foreground:          var(--paper);
+  --card:                oklch(0.20 0.006 60);
+  --card-foreground:     var(--paper);
+  --popover:             oklch(0.20 0.006 60);
+  --popover-foreground:  var(--paper);
+  --primary:             var(--paper);
+  --primary-foreground:  var(--ink);
+  --secondary:           oklch(0.23 0.005 60);
+  --secondary-foreground:var(--paper);
+  --muted:               oklch(0.25 0.005 60);
+  --muted-foreground:    oklch(0.68 0.008 72);
+  --accent:              var(--accent-gold);
+  --accent-foreground:   var(--ink);
+  --border:              oklch(1 0 0 / 11%);
+  --input:               oklch(1 0 0 / 14%);
+  --ring:                var(--paper);
 }
 
 @layer base {
@@ -137,11 +143,12 @@
 }
 
 @layer components {
+  /* Eyebrow label — small dot + text */
   .eyebrow {
     font-family: var(--font-sans);
     font-size: 0.72rem;
     font-weight: 500;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.015em;
     text-transform: none;
     color: var(--color-muted-foreground);
     display: inline-flex;
@@ -157,6 +164,7 @@
     background-color: var(--color-accent);
   }
 
+  /* Premium container */
   .container-luxe {
     max-width: 76rem;
     margin-left: auto;
@@ -171,6 +179,7 @@
     }
   }
 
+  /* Primary button — near-black pill */
   .btn-primary {
     display: inline-flex;
     align-items: center;
@@ -186,10 +195,11 @@
     transition: all 0.2s ease;
   }
   .btn-primary:hover {
-    background-color: oklch(from var(--color-foreground) calc(l + 0.12) c h);
+    opacity: 0.88;
     transform: translateY(-1px);
   }
 
+  /* Ghost / secondary button */
   .btn-secondary {
     display: inline-flex;
     align-items: center;
@@ -209,12 +219,45 @@
     border-color: var(--color-foreground);
   }
 
+  /* Accent pill — gold badge */
+  .badge-accent {
+    display: inline-block;
+    border-radius: 9999px;
+    background-color: var(--color-accent);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.2rem 0.65rem;
+    letter-spacing: 0.01em;
+  }
+
+  /* Fade-up entry animation */
   .fade-up {
-    animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: fadeUp 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /* Subtle card hover lift */
+  .card-hover {
+    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px -8px rgba(0,0,0,0.10);
   }
 }
 
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(12px); }
+  from { opacity: 0; transform: translateY(14px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
+/* Staggered fade-up for children */
+.fade-up-children > * {
+  animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.fade-up-children > *:nth-child(1) { animation-delay: 0.05s; }
+.fade-up-children > *:nth-child(2) { animation-delay: 0.12s; }
+.fade-up-children > *:nth-child(3) { animation-delay: 0.19s; }
+.fade-up-children > *:nth-child(4) { animation-delay: 0.26s; }
+.fade-up-children > *:nth-child(5) { animation-delay: 0.33s; }
+.fade-up-children > *:nth-child(6) { animation-delay: 0.40s; }
