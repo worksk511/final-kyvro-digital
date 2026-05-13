@@ -11,7 +11,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Kyvro Digital is a boutique digital studio building premium websites, client portals, booking systems and business automation for modern businesses — Australia & worldwide.",
+          "Kyvro Digital builds premium websites, apps, client portals and automation systems for businesses worldwide. Based in Canberra, Australia.",
       },
       { property: "og:title", content: "Kyvro Digital — Premium Websites & Digital Systems" },
       {
