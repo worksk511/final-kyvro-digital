@@ -6,6 +6,7 @@ import logo from "@/assets/kyvro-logo.png";
 const navItems = [
   { to: "/", label: "Home" },
   { to: "/services", label: "Services" },
+  { to: "/idea-to-internet", label: "Idea to Internet ✦", highlight: true },
   { to: "/pricing", label: "Pricing" },
   { to: "/about", label: "About" },
 ] as const;
@@ -30,8 +31,8 @@ export function Header() {
             <Link
               key={item.to}
               to={item.to}
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-              activeProps={{ className: "text-foreground" }}
+              className={`text-sm font-medium transition-colors hover:text-foreground ${"highlight" in item && item.highlight ? "text-accent" : "text-muted-foreground"}`}
+              activeProps={{ className: "highlight" in item && item.highlight ? "text-accent" : "text-foreground" }}
               activeOptions={{ exact: item.to === "/" }}
             >
               {item.label}
@@ -59,8 +60,8 @@ export function Header() {
                 key={item.to}
                 to={item.to}
                 onClick={() => setOpen(false)}
-                className="py-3 text-sm font-medium text-muted-foreground"
-                activeProps={{ className: "text-foreground" }}
+                className={`py-3 text-sm font-medium ${"highlight" in item && item.highlight ? "text-accent" : "text-muted-foreground"}`}
+                activeProps={{ className: "highlight" in item && item.highlight ? "text-accent" : "text-foreground" }}
                 activeOptions={{ exact: item.to === "/" }}
               >
                 {item.label}
