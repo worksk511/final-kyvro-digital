@@ -16,6 +16,9 @@ export const Route = createFileRoute("/idea-to-internet")({
       { property: "og:title", content: "Idea to Internet — Kyvro Digital" },
       {
         property: "og:description",
+        { property: "og:image", content: "https://kyvrodigital.com/og-image.png" },
+{ property: "og:image:width", content: "1200" },
+{ property: "og:image:height", content: "630" },
         content:
           "You bring the idea. We build the website, the brand, the systems. Every launch includes a Digital Birth Certificate. Worldwide.",
       },
