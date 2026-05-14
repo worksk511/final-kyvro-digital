@@ -14,12 +14,13 @@ const navLinks = [
 ];
 
 const serviceLinks = [
-  "Website-to-App Conversion",
-  "Client Portals",
-  "Website Design",
-  "Business Automation",
-  "Booking Systems",
-  "Ongoing Support",
+  { label: "Website-to-App Conversion", to: "/services" },
+  { label: "Idea to Internet ✦", to: "/idea-to-internet" },
+  { label: "Client Portals", to: "/services" },
+  { label: "Website Design", to: "/services" },
+  { label: "Business Automation", to: "/services" },
+  { label: "Booking Systems", to: "/services" },
+  { label: "Ongoing Support", to: "/services" },
 ];
 
 export function Footer() {
@@ -71,8 +72,17 @@ export function Footer() {
             <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Services</p>
             <ul className="mt-4 space-y-2.5 text-sm">
               {serviceLinks.map((s) => (
-                <li key={s}>
-                  <Link to="/services" className="text-foreground/70 transition-colors hover:text-foreground">{s}</Link>
+                <li key={s.label}>
+                  <Link
+                    to={s.to}
+                    className={`transition-colors hover:text-foreground ${
+                      s.to === "/idea-to-internet"
+                        ? "text-accent font-medium"
+                        : "text-foreground/70"
+                    }`}
+                  >
+                    {s.label}
+                  </Link>
                 </li>
               ))}
             </ul>
