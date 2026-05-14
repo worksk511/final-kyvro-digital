@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as IdeaToInternetRouteImport } from './routes/idea-to-internet'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
@@ -24,6 +25,11 @@ const ServicesRoute = ServicesRouteImport.update({
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IdeaToInternetRoute = IdeaToInternetRouteImport.update({
+  id: '/idea-to-internet',
+  path: '/idea-to-internet',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -51,6 +57,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
+  '/idea-to-internet': typeof IdeaToInternetRoute
   '/pricing': typeof PricingRoute
   '/services': typeof ServicesRoute
   '/api/quote': typeof ApiQuoteRoute
@@ -59,6 +66,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
+  '/idea-to-internet': typeof IdeaToInternetRoute
   '/pricing': typeof PricingRoute
   '/services': typeof ServicesRoute
   '/api/quote': typeof ApiQuoteRoute
@@ -68,6 +76,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
+  '/idea-to-internet': typeof IdeaToInternetRoute
   '/pricing': typeof PricingRoute
   '/services': typeof ServicesRoute
   '/api/quote': typeof ApiQuoteRoute
@@ -78,16 +87,25 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/contact'
+    | '/idea-to-internet'
     | '/pricing'
     | '/services'
     | '/api/quote'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/contact' | '/pricing' | '/services' | '/api/quote'
+  to:
+    | '/'
+    | '/about'
+    | '/contact'
+    | '/idea-to-internet'
+    | '/pricing'
+    | '/services'
+    | '/api/quote'
   id:
     | '__root__'
     | '/'
     | '/about'
     | '/contact'
+    | '/idea-to-internet'
     | '/pricing'
     | '/services'
     | '/api/quote'
@@ -97,6 +115,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   ContactRoute: typeof ContactRoute
+  IdeaToInternetRoute: typeof IdeaToInternetRoute
   PricingRoute: typeof PricingRoute
   ServicesRoute: typeof ServicesRoute
   ApiQuoteRoute: typeof ApiQuoteRoute
@@ -116,6 +135,13 @@ declare module '@tanstack/react-router' {
       path: '/pricing'
       fullPath: '/pricing'
       preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/idea-to-internet': {
+      id: '/idea-to-internet'
+      path: '/idea-to-internet'
+      fullPath: '/idea-to-internet'
+      preLoaderRoute: typeof IdeaToInternetRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -153,6 +179,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   ContactRoute: ContactRoute,
+  IdeaToInternetRoute: IdeaToInternetRoute,
   PricingRoute: PricingRoute,
   ServicesRoute: ServicesRoute,
   ApiQuoteRoute: ApiQuoteRoute,
@@ -160,12 +187,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

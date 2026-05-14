@@ -16,6 +16,6 @@ export function Section({
   );
 }
 
-export function Eyebrow({ children }: { children: ReactNode }) {
-  return <span className="eyebrow">{children}</span>;
+export function Eyebrow({ children, className = "" }: { children: ReactNode; className?: string }) {
+  return <span className={`eyebrow ${className}`}>{children}</span>;
 }
