@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Section, Eyebrow } from "@/components/site/Section";
 import { CtaPrimary, CtaGhost } from "@/components/site/CtaButton";
-import { services, audiences, whyChoose, signatureService, stats } from "@/lib/content";
-import { ArrowRight, Layout, Wrench, TrendingUp, Smartphone, Sparkles, Target, Check } from "lucide-react";
+import { services, audiences, whyChoose, signatureService, ideaToInternet, stats } from "@/lib/content";
+import { ArrowRight, Layout, Wrench, TrendingUp, Smartphone, Sparkles, Target, Check, Lightbulb } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -17,7 +17,7 @@ export const Route = createFileRoute("/")({
       {
         property: "og:description",
         content:
-          "Premium websites, app conversion, client portals and business automation for modern businesses.",
+          "Kyvro Digital builds premium websites, apps, client portals and automation systems for businesses worldwide. Based in Canberra, Australia.",
       },
       { property: "og:url", content: "https://kyvrodigital.com" },
       { property: "og:image", content: "https://kyvrodigital.com/og-image.png" },
@@ -79,7 +79,7 @@ function HomePage() {
       <section className="relative overflow-hidden">
         <div className="container-luxe pt-14 pb-16 md:pt-20 md:pb-20">
           <div className="fade-up max-w-4xl">
-            <Eyebrow>Premium Digital Studio — Australia</Eyebrow>
+            <Eyebrow>Premium Digital Studio — Australia & Worldwide</Eyebrow>
             <h1 className="mt-5 text-4xl font-semibold leading-[1.05] tracking-tight text-foreground md:text-6xl lg:text-[4.25rem]">
               We build the digital systems your business{" "}
               <span className="font-serif italic font-normal text-foreground/90">deserves.</span>
@@ -217,15 +217,12 @@ function HomePage() {
             {/* Right — phone mockup */}
             <div className="flex justify-center md:justify-end">
               <div className="relative w-56 md:w-64">
-                {/* Phone shell */}
                 <div className="rounded-[2.5rem] border-4 border-background/20 bg-background/10 p-2 shadow-2xl backdrop-blur">
                   <div className="rounded-[2rem] bg-background overflow-hidden">
-                    {/* Status bar */}
                     <div className="flex items-center justify-between px-5 pt-3 pb-1">
                       <span className="text-[10px] font-medium text-foreground/60">9:41</span>
                       <div className="h-3 w-16 rounded-full bg-foreground/10" />
                     </div>
-                    {/* App header */}
                     <div className="px-4 pt-3 pb-2 border-b border-border/40">
                       <div className="flex items-center gap-2">
                         <div className="h-7 w-7 rounded-lg bg-foreground/90" />
@@ -235,7 +232,6 @@ function HomePage() {
                         </div>
                       </div>
                     </div>
-                    {/* App content */}
                     <div className="p-4 space-y-3">
                       <div className="rounded-lg bg-surface p-3">
                         <div className="h-1.5 w-12 rounded bg-accent/60 mb-2" />
@@ -260,7 +256,6 @@ function HomePage() {
                         <div className="mt-1.5 h-2 w-1/2 rounded bg-muted" />
                       </div>
                     </div>
-                    {/* Bottom nav */}
                     <div className="flex justify-around border-t border-border/40 px-4 py-3">
                       {[...Array(4)].map((_, i) => (
                         <div key={i} className={`h-5 w-5 rounded ${i === 0 ? "bg-foreground/80" : "bg-muted"}`} />
@@ -268,7 +263,6 @@ function HomePage() {
                     </div>
                   </div>
                 </div>
-                {/* Floating label */}
                 <div className="absolute -right-4 top-12 rounded-lg border border-background/20 bg-background/10 px-3 py-1.5 backdrop-blur">
                   <p className="text-xs font-medium text-background">Saved to home screen ✓</p>
                 </div>
@@ -278,8 +272,98 @@ function HomePage() {
         </div>
       </section>
 
+      {/* IDEA TO INTERNET SPOTLIGHT */}
+      <section className="border-t border-border/60 bg-surface">
+        <div className="container-luxe py-16 md:py-20">
+          <div className="grid gap-12 md:grid-cols-2 md:items-center">
+            {/* Left — idea mockup */}
+            <div className="flex justify-start">
+              <div className="relative w-full max-w-sm">
+                {/* Journey card */}
+                <div className="rounded-2xl border border-border bg-card p-6 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.12)]">
+                  <div className="flex items-center gap-3 mb-6 pb-5 border-b border-border">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent/10">
+                      <Lightbulb className="h-4 w-4 text-accent" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">Idea to Internet</p>
+                      <p className="text-xs text-muted-foreground">Your idea → live business</p>
+                    </div>
+                    <span className="ml-auto rounded-full bg-accent/10 border border-accent/20 px-2 py-0.5 text-[10px] font-semibold text-accent">✦ New</span>
+                  </div>
+                  <div className="space-y-3">
+                    {[
+                      { step: "01", label: "30-Min Idea Audit", done: true },
+                      { step: "02", label: "Blueprint & Roadmap", done: true },
+                      { step: "03", label: "Full Build", done: false },
+                      { step: "04", label: "Launch + Birth Certificate", done: false },
+                    ].map((item) => (
+                      <div key={item.step} className={`flex items-center gap-3 rounded-lg px-4 py-3 ${item.done ? "bg-accent/5 border border-accent/20" : "bg-surface border border-border"}`}>
+                        <span className={`text-xs font-semibold ${item.done ? "text-accent" : "text-muted-foreground"}`}>{item.step}</span>
+                        <span className={`text-sm ${item.done ? "text-foreground font-medium" : "text-muted-foreground"}`}>{item.label}</span>
+                        {item.done && <Check className="ml-auto h-3.5 w-3.5 text-accent" />}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-5 rounded-lg border border-accent/20 bg-accent/5 px-4 py-3">
+                    <p className="text-xs font-medium text-accent">✦ Digital Birth Certificate included on launch</p>
+                  </div>
+                </div>
+                {/* Floating badge */}
+                <div className="absolute -top-3 -right-3 rounded-lg border border-border bg-card px-3 py-1.5 shadow-sm">
+                  <p className="text-xs font-medium text-foreground">Free Idea Audit ✦</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Right — copy */}
+            <div>
+              <span className="inline-block rounded-full border border-accent/30 bg-accent/5 px-3 py-1 text-xs font-medium text-accent mb-5">
+                ✦ New · Founding Offer
+              </span>
+              <h2 className="text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-4xl lg:text-5xl">
+                {ideaToInternet.tagline}
+              </h2>
+              <p className="mt-5 text-base leading-relaxed text-muted-foreground">
+                For students, first-time founders, and side-hustlers who have a genuine idea but no idea where to start. We take you from concept to a live, real digital business — anywhere in the world.
+              </p>
+              <ul className="mt-6 space-y-2">
+                {[
+                  "Free 30-minute Idea Audit to start",
+                  "Complete digital build — website, brand, automation",
+                  "Digital Birth Certificate on every launch",
+                  "You go live. We stay with you.",
+                ].map((point) => (
+                  <li key={point} className="flex items-center gap-3">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent/10 border border-accent/20">
+                      <Check className="h-3 w-3 text-accent" />
+                    </span>
+                    <span className="text-sm text-foreground">{point}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Link
+                  to="/idea-to-internet"
+                  className="inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3 text-sm font-medium text-background transition-all hover:-translate-y-px"
+                >
+                  See how it works
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link
+                  to="/contact"
+                  className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-6 py-3 text-sm font-medium text-foreground transition-all hover:border-foreground/40"
+                >
+                  Book free Idea Audit
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* SERVICES PREVIEW */}
-      <Section className="bg-surface">
+      <Section className="border-t border-border/60">
         <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div className="max-w-xl">
             <Eyebrow>Services</Eyebrow>
@@ -297,12 +381,12 @@ function HomePage() {
           {services.map((s) => (
             <Link
               key={s.slug}
-              to="/services"
+              to={s.slug === "idea-to-internet" ? "/idea-to-internet" : "/services"}
               className="group flex flex-col justify-between rounded-xl border border-border bg-card p-6 transition-all hover:border-foreground/30 hover:-translate-y-0.5"
             >
               <div>
                 {"badge" in s && s.badge && (
-                  <span className="mb-3 inline-block rounded-full bg-foreground px-2.5 py-0.5 text-[10px] font-medium text-background">
+                  <span className={`mb-3 inline-block rounded-full px-2.5 py-0.5 text-[10px] font-medium ${s.badge === "✦ New" ? "bg-accent/10 border border-accent/20 text-accent" : "bg-foreground text-background"}`}>
                     {s.badge}
                   </span>
                 )}
@@ -329,7 +413,7 @@ function HomePage() {
       </Section>
 
       {/* HOW WE WORK */}
-      <Section>
+      <Section className="bg-surface">
         <div className="max-w-2xl">
           <Eyebrow>How we work</Eyebrow>
           <h2 className="mt-3 text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
@@ -348,16 +432,15 @@ function HomePage() {
       </Section>
 
       {/* WHO WE HELP */}
-      <Section className="bg-surface">
+      <Section className="border-t border-border/60">
         <div className="grid gap-10 md:grid-cols-12 md:gap-14">
           <div className="md:col-span-5">
             <Eyebrow>Who we help</Eyebrow>
             <h2 className="mt-3 text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
-              Built for businesses that need a stronger online presence.
+              Built for businesses — and ideas — that deserve a stronger online presence.
             </h2>
             <p className="mt-5 max-w-md text-sm leading-relaxed text-muted-foreground">
-              We work with businesses that want a website which reflects the quality
-              of what they actually do.
+              From established businesses upgrading their digital presence, to first-time founders turning an idea into a real business. Worldwide.
             </p>
           </div>
           <div className="md:col-span-7 flex flex-wrap content-start gap-2.5">
@@ -374,7 +457,7 @@ function HomePage() {
       </Section>
 
       {/* WHY CHOOSE */}
-      <Section>
+      <Section className="bg-surface border-t border-border/60">
         <div className="max-w-2xl">
           <Eyebrow>Why Kyvro Digital</Eyebrow>
           <h2 className="mt-3 text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
@@ -396,30 +479,30 @@ function HomePage() {
       </Section>
 
       {/* FINAL CTA */}
-      <section className="border-t border-border/60 bg-surface">
+      <section className="border-t border-border/60 bg-foreground">
         <div className="container-luxe py-16 md:py-20">
           <div className="mx-auto max-w-3xl text-center">
-            <Eyebrow>Get started</Eyebrow>
-            <h2 className="mt-4 text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-5xl">
+            <Eyebrow className="text-background/40">Get started</Eyebrow>
+            <h2 className="mt-4 text-3xl font-semibold leading-tight tracking-tight text-background md:text-5xl">
               Ready to build something premium?
             </h2>
-            <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-muted-foreground">
+            <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-background/60">
               Get a free consultation and quote — tell us what you need and we'll
               shape the right digital system for your business.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Link
                 to="/contact"
-                className="group inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3 text-sm font-medium text-background transition-all hover:-translate-y-px"
+                className="group inline-flex items-center gap-2 rounded-full bg-background px-6 py-3 text-sm font-medium text-foreground transition-all hover:-translate-y-px"
               >
                 Get a Free Quote
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Link>
               <Link
-                to="/services"
-                className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-6 py-3 text-sm font-medium text-foreground transition-all hover:border-foreground/40"
+                to="/idea-to-internet"
+                className="inline-flex items-center gap-2 rounded-full border border-background/20 px-6 py-3 text-sm font-medium text-background transition-all hover:border-background/40"
               >
-                View Services
+                Got an idea? Start here ✦
               </Link>
             </div>
           </div>

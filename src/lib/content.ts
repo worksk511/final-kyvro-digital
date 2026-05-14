@@ -1,5 +1,5 @@
 // Centralised, easily-editable copy for Kyvro Digital.
-// Updated: Full service suite — premium boutique digital studio
+// Updated: Added Idea to Internet — founding offer
 
 export const services = [
   {
@@ -16,6 +16,22 @@ export const services = [
       "Offers, gallery & contact sections",
       "QR code for easy customer access",
       "Google review button integration",
+    ],
+  },
+  {
+    slug: "idea-to-internet",
+    title: "Idea to Internet",
+    short:
+      "You have the idea. We build the digital presence, the brand, the systems — and hand you a business ready to launch. Worldwide.",
+    bestFor: "Students, first-time founders, side-hustlers, and anyone with an idea and no idea where to start.",
+    badge: "✦ New",
+    inclusions: [
+      "Free 30-minute Idea Audit",
+      "Digital roadmap & brand direction",
+      "Full website design & build",
+      "Booking or enquiry system",
+      "Business automation setup",
+      "Digital Birth Certificate on launch",
     ],
   },
   {
@@ -151,6 +167,7 @@ export const audiences = [
   "Local trade businesses",
   "Restaurants & hospitality",
   "Startups & new businesses",
+  "Students & first-time founders",
   "Independent creatives",
   "E-commerce brands",
   "Professional services",
@@ -246,6 +263,49 @@ export const signatureService = {
     "QR code so anyone can access it instantly",
     "No app store submission needed",
     "Works on iPhone and Android",
+  ],
+};
+
+export const ideaToInternet = {
+  tagline: "You have the idea. We build everything else.",
+  description:
+    "Every business that exists today started as an idea. Most never made it online — not because they weren't good enough, but because nobody helped them get there. That's exactly what we do. From your first conversation to your first customer — we build the entire digital foundation your idea needs to become a real business.",
+  stages: [
+    {
+      number: "01",
+      name: "30-Min Idea Audit",
+      label: "Free",
+      body: "We validate your idea, map the digital opportunity, and tell you exactly what to build first. No pitch. No pressure. Just clarity.",
+    },
+    {
+      number: "02",
+      name: "Blueprint",
+      label: "Strategy session",
+      body: "Your complete digital roadmap — brand direction, website structure, tools, automation plan, and a clear path from idea to launch.",
+    },
+    {
+      number: "03",
+      name: "Build",
+      label: "We build everything",
+      body: "Website, branding, booking system, automation — your complete digital presence, built to a premium standard, delivered fast.",
+    },
+    {
+      number: "04",
+      name: "Launch",
+      label: "Go live + Digital Birth Certificate",
+      body: "You go live. We hand you your Digital Birth Certificate — a branded record of your idea, your stack, and your launch date. The day your business was born.",
+    },
+  ],
+  birthCertificate: {
+    title: "The Digital Birth Certificate",
+    body: "Every business we launch receives one. A beautifully designed one-page document recording your business name, your digital stack, your launch date, and the idea that started it all. Frame it. Share it. It marks the day your idea became real.",
+  },
+  whoItsFor: [
+    "University students with an idea and no execution plan",
+    "First-time founders who don't know where to start",
+    "Side-hustlers ready to take their idea seriously",
+    "Career-changers launching something new",
+    "Anyone who's said 'I have an idea' but never acted on it",
   ],
 };
 
