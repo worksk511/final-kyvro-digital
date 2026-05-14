@@ -128,7 +128,7 @@ function ServicesPage() {
                       <p className="text-xs font-medium text-muted-foreground">
                         {String(i + 1).padStart(2, "0")} / {String(services.length).padStart(2, "0")}
                       </p>
-                      {"badge" in s && s.badge && s.badge !== "✦ New" && (
+                      {"badge" in s && s.badge && (s.badge as string) !== "✦ New" && (
                         <span className="inline-block rounded-full bg-foreground px-2.5 py-0.5 text-[10px] font-medium text-background">
                           {s.badge}
                         </span>
