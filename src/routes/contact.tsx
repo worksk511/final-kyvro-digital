@@ -27,6 +27,8 @@ export const Route = createFileRoute("/contact")({
   component: ContactPage,
 });
 
+const WEB3FORMS_KEY = "f2c4a936-5b6c-41b6-b014-4842c4e22dab";
+
 const enquirySchema = z.object({
   name: z.string().trim().min(2, "Please enter your name").max(80),
   business: z.string().trim().max(120).optional().or(z.literal("")),
@@ -45,6 +47,7 @@ type EnquiryValues = z.infer<typeof enquirySchema>;
 
 const serviceOptions = [
   { value: "Website-to-App Conversion", label: "✦  Website-to-App Conversion — Signature Service" },
+  { value: "Idea to Internet", label: "✦  Idea to Internet — New" },
   { value: "Client Portal", label: "Client Portal" },
   { value: "Website Design & Development", label: "Website Design & Development" },
   { value: "Business Automation", label: "Business Automation" },
@@ -99,15 +102,31 @@ function ContactPage() {
   const onSubmit = async (values: EnquiryValues) => {
     setSubmitError(null);
     try {
-      const res = await fetch("/api/quote", {
+      const res = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
+        body: JSON.stringify({
+          access_key: WEB3FORMS_KEY,
+          subject: `New Enquiry from ${values.name} — ${values.helpWith}`,
+          from_name: "Kyvro Digital Website",
+          name: values.name,
+          email: values.email,
+          business: values.business || "Not provided",
+          phone: values.phone || "Not provided",
+          service: values.helpWith,
+          has_website: values.hasWebsite === "yes" ? "Yes" : "No",
+          budget: values.budget || "Not specified",
+          timeline: values.timeline || "Not specified",
+          details: values.details || "No additional details provided",
+        }),
       });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data?.error || "Submission failed");
+
+      const data = await res.json();
+
+      if (!data.success) {
+        throw new Error(data.message || "Submission failed. Please try again.");
       }
+
       setSubmitted(true);
       reset();
     } catch (err) {
@@ -323,7 +342,11 @@ function ContactPage() {
                       {...register("details")} className={input} />
                   </div>
 
-                  {submitError && <p className={error}>{submitError}</p>}
+                  {submitError && (
+                    <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3">
+                      <p className="text-sm text-destructive">{submitError}</p>
+                    </div>
+                  )}
 
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                     <button type="submit" disabled={isSubmitting}
