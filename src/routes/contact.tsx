@@ -109,6 +109,7 @@ function ContactPage() {
           access_key: WEB3FORMS_KEY,
           subject: `New Enquiry from ${values.name} — ${values.helpWith}`,
           from_name: "Kyvro Digital Website",
+          replyto: values.email,
           name: values.name,
           email: values.email,
           business: values.business || "Not provided",
