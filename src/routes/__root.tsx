@@ -3,6 +3,7 @@ import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/r
 import appCss from "../styles.css?url";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
+import { JayyWidget } from "@/components/site/JayyWidget";
 
 function NotFoundComponent() {
   return (
@@ -84,6 +85,7 @@ function RootComponent() {
         <Outlet />
       </main>
       <Footer />
+      <JayyWidget />
     </div>
   );
 }
