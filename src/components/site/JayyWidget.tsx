@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation } from "@tanstack/react-router";
-import { X, Send, MessageCircle, Mail, Phone, FileText, RotateCcw, ChevronRight } from "lucide-react";
+import { X, Send, Mail, Phone, FileText, RotateCcw, Sparkles } from "lucide-react";
 
 interface Message {
   role: "user" | "assistant";
@@ -10,113 +10,145 @@ interface Message {
 interface Snapshot {
   business: string;
   service: string;
-  pages?: string;
   timeline: string;
   priceRange: string;
 }
 
+// ─── GUIDED STEPS ─────────────────────────────────────────────────────────────
 const STEPS = [
-  { q: "What does your business do?", key: "business", type: "text", placeholder: "e.g. Hair salon in Canberra, personal trainer, cafe..." },
-  { q: "What do you need help with?", key: "service", type: "options", options: ["Website Design", "Website-to-App Conversion ✦", "Booking System", "Client Portal", "Business Automation", "Idea to Internet ✦", "Branding", "E-commerce", "Not sure yet"] },
-  { q: "What's your rough budget?", key: "budget", type: "options", options: ["Under $500 AUD", "$500–$1,000 AUD", "$1,000–$2,000 AUD", "$2,000+ AUD", "Not sure yet"] },
-  { q: "When do you need this done?", key: "timeline", type: "options", options: ["ASAP", "Within a month", "1–3 months", "Just exploring"] },
+  {
+    q: "What does your business do?",
+    sub: "Tell me anything — industry, location, what you sell or offer.",
+    key: "business",
+    type: "text",
+    placeholder: "e.g. Yoga studio in Melbourne, personal trainer, café...",
+  },
+  {
+    q: "What do you need help with?",
+    sub: "Pick the one that fits best.",
+    key: "service",
+    type: "options",
+    options: [
+      "Website Design",
+      "Website-to-App Conversion",
+      "Booking System",
+      "Client Portal",
+      "Business Automation",
+      "Idea to Internet",
+      "Branding & Identity",
+      "E-commerce Setup",
+      "Not sure yet",
+    ],
+  },
+  {
+    q: "What's your rough budget?",
+    sub: "No commitment — just helps me point you in the right direction.",
+    key: "budget",
+    type: "options",
+    options: [
+      "Under $500 AUD",
+      "$500–$1,000 AUD",
+      "$1,000–$2,000 AUD",
+      "$2,000+ AUD",
+      "Not sure yet",
+    ],
+  },
+  {
+    q: "When do you need this?",
+    sub: "Rough timing is fine.",
+    key: "timeline",
+    type: "options",
+    options: ["ASAP", "Within a month", "1–3 months", "Just exploring"],
+  },
 ];
 
 const PRICING_MAP: Record<string, string> = {
-  "Under $500 AUD": "from AUD $499 (Starter)",
-  "$500–$1,000 AUD": "from AUD $999 (Growth — most popular)",
-  "$1,000–$2,000 AUD": "from AUD $1,999 (Premium)",
-  "$2,000+ AUD": "AUD $1,999+ (Premium / Custom)",
-  "Not sure yet": "from AUD $499 — we'll recommend the right fit",
+  "Under $500 AUD": "AUD $499 — Starter",
+  "$500–$1,000 AUD": "AUD $999 — Growth (most popular)",
+  "$1,000–$2,000 AUD": "AUD $1,999 — Premium",
+  "$2,000+ AUD": "AUD $1,999+ — Premium / Custom",
+  "Not sure yet": "from AUD $499 — we'll find the right fit",
 };
 
-const BLOCK_TRIGGERS: Record<string, string> = {
-  hero: "Hero / Headline", headline: "Hero / Headline", home: "Hero / Headline",
-  nav: "Navigation", menu: "Navigation", booking: "Booking System",
-  appointment: "Booking System", gallery: "Gallery / Photos", photo: "Gallery / Photos",
-  contact: "Contact Form", enquir: "Contact Form", service: "Services Section",
-  about: "About Section", shop: "Online Store", product: "Online Store",
+const PAGE_GREETINGS: Record<string, string> = {
+  "/pricing": "Want me to narrow that down for your situation?",
+  "/idea-to-internet": "Got an idea you're sitting on? Tell me about it.",
+  "/contact": "I can help you fill this in — what's your project about?",
+  "/services": "Which of our services caught your eye?",
 };
 
-function getWireframeBlocks(messages: Message[]): string[] {
-  const found = new Set<string>();
-  const text = messages.map((m) => m.content.toLowerCase()).join(" ");
-  for (const [trigger, label] of Object.entries(BLOCK_TRIGGERS)) {
-    if (text.includes(trigger)) found.add(label);
-  }
-  if (found.size > 0) found.add("Navigation");
-  const order = ["Navigation", "Hero / Headline", "Services Section", "Booking System", "Gallery / Photos", "About Section", "Contact Form", "Online Store"];
-  return order.filter((b) => found.has(b));
-}
-
-function WireframePreview({ blocks }: { blocks: string[] }) {
-  if (blocks.length === 0) return null;
-  const heights: Record<string, number> = {
-    "Navigation": 24, "Hero / Headline": 56, "Services Section": 44,
-    "Booking System": 48, "Gallery / Photos": 40, "About Section": 36,
-    "Contact Form": 40, "Online Store": 44,
-  };
-  return (
-    <div style={{ background: "#f5f1eb", border: "1px solid #e8e3dc", borderRadius: 10, padding: "12px 10px", margin: "4px 0" }}>
-      <div style={{ fontSize: 10, color: "#9b9590", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 8 }}>Your site taking shape ✦</div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-        {blocks.map((block, i) => (
-          <div key={block} style={{
-            background: block === "Hero / Headline" ? "#D29B3C20" : block === "Navigation" ? "#0A090718" : "#0A090710",
-            border: `1px solid ${block === "Hero / Headline" ? "#D29B3C40" : "#0A090718"}`,
-            borderRadius: 6, height: heights[block] || 36,
-            display: "flex", alignItems: "center", paddingLeft: 10,
-            fontSize: 10, color: block === "Hero / Headline" ? "#D29B3C" : "#6b6560",
-            fontWeight: block === "Navigation" || block === "Hero / Headline" ? 600 : 400,
-            opacity: 0, animation: `jayyFadeIn 0.4s ease ${i * 0.08}s forwards`,
-          }}>{block}</div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function btnStyle(bg: string, color: string, border?: string) {
-  return { background: bg, color, border: border || "none", borderRadius: 8, padding: "10px 14px", fontSize: 12, fontWeight: 700, cursor: "pointer" as const, display: "flex" as const, alignItems: "center" as const, gap: 8, width: "100%" as const, justifyContent: "center" as const, fontFamily: "inherit" };
-}
-
-function SnapshotCard({ snapshot, onEmail, onWhatsApp, onForm }: { snapshot: Snapshot; onEmail: () => void; onWhatsApp: () => void; onForm: () => void; }) {
-  return (
-    <div style={{ background: "#0A0907", borderRadius: 12, padding: 16, marginTop: 8 }}>
-      <div style={{ fontSize: 10, color: "#D29B3C", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 12 }}>✦ Your Project Snapshot</div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 12 }}>
-        {[["Business", snapshot.business], ["Service", snapshot.service], snapshot.pages ? ["Scope", snapshot.pages] : null, ["Timeline", snapshot.timeline], ["Estimated range", snapshot.priceRange]].filter(Boolean).map(([label, value]) => (
-          <div key={label as string} style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
-            <span style={{ fontSize: 11, color: "#6b6560", flexShrink: 0 }}>{label as string}</span>
-            <span style={{ fontSize: 12, color: "#FAF7F2", fontWeight: 600, textAlign: "right" }}>{value as string}</span>
-          </div>
-        ))}
-      </div>
-      <div style={{ fontSize: 10, color: "#4a4540", lineHeight: 1.5, marginBottom: 14, padding: "8px 10px", background: "#ffffff08", borderRadius: 6 }}>
-        Indicative only — confirmed after a 15-min conversation with the team.
-      </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        <button onClick={onEmail} style={btnStyle("#D29B3C", "#0A0907")}><Mail size={13} /> Send to Kyvro by Email</button>
-        <button onClick={onWhatsApp} style={btnStyle("#25D366", "#fff")}><Phone size={13} /> Send on WhatsApp</button>
-        <button onClick={onForm} style={btnStyle("transparent", "#FAF7F2", "1px solid #2a2824")}><FileText size={13} /> Fill Our Quote Form</button>
-      </div>
-    </div>
-  );
-}
-
-const SESSION_KEY = "jayy_v3";
-const POPUP_KEY = "jayy_popped_v2";
+const SESSION_KEY = "jayy_v4";
+const POPUP_KEY = "jayy_popup_v3";
 const WHATSAPP = "61493034590";
 const EMAIL = "info@kyvrodigital.com";
 
-const PAGE_GREETINGS: Record<string, string> = {
-  "/pricing": "Hey — I'm Jayy 👋 I can help you figure out which package fits your situation. What does your business do?",
-  "/idea-to-internet": "Hey — I'm Jayy 👋 Got an idea you're sitting on? Tell me about it.",
-  "/contact": "Hey — I'm Jayy 👋 I can help you fill this in. What's your project about?",
-  "/services": "Hey — I'm Jayy 👋 Which of our services caught your eye?",
-};
-const DEFAULT_GREETING = "Hey — I'm Jayy, your Kyvro assistant 👋\n\nTell me about your business and I'll help you figure out what you need online.";
+// ─── SNAPSHOT CARD ─────────────────────────────────────────────────────────────
+function SnapshotCard({ snapshot, onEmail, onWhatsApp, onForm }: {
+  snapshot: Snapshot;
+  onEmail: () => void;
+  onWhatsApp: () => void;
+  onForm: () => void;
+}) {
+  return (
+    <div style={{
+      background: "#fff",
+      border: "1.5px solid #D29B3C",
+      borderRadius: 16,
+      overflow: "hidden",
+      marginTop: 8,
+    }}>
+      {/* Header */}
+      <div style={{ background: "#D29B3C", padding: "10px 16px", display: "flex", alignItems: "center", gap: 8 }}>
+        <Sparkles size={13} color="#0A0907" />
+        <span style={{ fontSize: 11, fontWeight: 700, color: "#0A0907", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+          Your Project Snapshot
+        </span>
+      </div>
+      {/* Fields */}
+      <div style={{ padding: "14px 16px" }}>
+        {[
+          ["Business", snapshot.business],
+          ["Service", snapshot.service],
+          ["Timeline", snapshot.timeline],
+          ["Estimated range", snapshot.priceRange],
+        ].map(([label, value]) => (
+          <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8, marginBottom: 10 }}>
+            <span style={{ fontSize: 11, color: "#9b9590", flexShrink: 0 }}>{label}</span>
+            <span style={{ fontSize: 12, color: "#0A0907", fontWeight: 600, textAlign: "right" }}>{value}</span>
+          </div>
+        ))}
+        <div style={{ fontSize: 10, color: "#b0a898", lineHeight: 1.5, paddingTop: 8, borderTop: "1px solid #f0ebe4", marginBottom: 14 }}>
+          Indicative — confirmed after a 15-min call with the team.
+        </div>
+        {/* Buttons */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <button onClick={onEmail} style={snapBtn("#0A0907", "#FAF7F2")}>
+            <Mail size={13} />  Send to Kyvro by Email
+          </button>
+          <button onClick={onWhatsApp} style={snapBtn("#25D366", "#fff")}>
+            <Phone size={13} />  Send on WhatsApp
+          </button>
+          <button onClick={onForm} style={snapBtn("#FAF7F2", "#0A0907", "1px solid #e0dbd4")}>
+            <FileText size={13} />  Fill Our Quote Form
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
+function snapBtn(bg: string, color: string, border?: string) {
+  return {
+    background: bg, color, border: border || "none",
+    borderRadius: 10, padding: "10px 14px",
+    fontSize: 12, fontWeight: 700, cursor: "pointer" as const,
+    display: "flex" as const, alignItems: "center" as const,
+    gap: 8, width: "100%" as const, justifyContent: "center" as const,
+    fontFamily: "inherit",
+  };
+}
+
+// ─── MAIN WIDGET ───────────────────────────────────────────────────────────────
 export function JayyWidget() {
   const location = useLocation();
   const [open, setOpen] = useState(false);
@@ -126,103 +158,100 @@ export function JayyWidget() {
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [showFallback, setShowFallback] = useState(false);
   const [initiated, setInitiated] = useState(false);
-  const [showPopupHint, setShowPopupHint] = useState(false);
+  const [popupVisible, setPopupVisible] = useState(false);
+  const [popupDismissed, setPopupDismissed] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Load session
   useEffect(() => {
     try {
-      const saved = sessionStorage.getItem(SESSION_KEY);
-      if (saved) {
-        const p = JSON.parse(saved);
+      const s = sessionStorage.getItem(SESSION_KEY);
+      if (s) {
+        const p = JSON.parse(s);
         if (p.messages) setMessages(p.messages);
         if (p.snapshot) setSnapshot(p.snapshot);
         if (p.answers) setAnswers(p.answers);
         if (p.step !== undefined) setStep(p.step);
-        if (p.showFallback) setShowFallback(p.showFallback);
         if (p.initiated) setInitiated(p.initiated);
       }
     } catch {}
   }, []);
 
+  // Save session
   useEffect(() => {
-    try { sessionStorage.setItem(SESSION_KEY, JSON.stringify({ messages, snapshot, answers, step, showFallback, initiated })); } catch {}
-  }, [messages, snapshot, answers, step, showFallback, initiated]);
+    try { sessionStorage.setItem(SESSION_KEY, JSON.stringify({ messages, snapshot, answers, step, initiated })); } catch {}
+  }, [messages, snapshot, answers, step, initiated]);
 
+  // Auto popup after 5 seconds
   useEffect(() => {
-    const hasPopped = sessionStorage.getItem(POPUP_KEY);
-    if (!hasPopped) {
-      const t = setTimeout(() => { setShowPopupHint(true); sessionStorage.setItem(POPUP_KEY, "1"); }, 4000);
-      return () => clearTimeout(t);
-    }
+    if (sessionStorage.getItem(POPUP_KEY)) return;
+    const t = setTimeout(() => {
+      setPopupVisible(true);
+      sessionStorage.setItem(POPUP_KEY, "1");
+    }, 5000);
+    return () => clearTimeout(t);
   }, []);
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, loading, snapshot]);
-  useEffect(() => { if (open) setTimeout(() => inputRef.current?.focus(), 150); }, [open]);
+  useEffect(() => { if (open) setTimeout(() => inputRef.current?.focus(), 200); }, [open]);
   useEffect(() => {
     const h = (e: KeyboardEvent) => { if (e.key === "Escape" && open) setOpen(false); };
     window.addEventListener("keydown", h);
     return () => window.removeEventListener("keydown", h);
   }, [open]);
 
+  const getGreeting = useCallback(() => {
+    const pageSpecific = PAGE_GREETINGS[location.pathname];
+    if (pageSpecific) return `Hey — I'm Jayy, your Kyvro assistant.\n\n${pageSpecific}`;
+    return `Hey — I'm Jayy, your Kyvro assistant ✦\n\nI can help you figure out what your business needs online — website, app, booking system, automation, or something else entirely.\n\nWhat does your business do?`;
+  }, [location.pathname]);
+
   const initJayy = useCallback(() => {
     if (initiated) return;
-    const greeting = PAGE_GREETINGS[location.pathname] || DEFAULT_GREETING;
-    setMessages([{ role: "assistant", content: greeting }]);
+    setMessages([{ role: "assistant", content: getGreeting() }]);
     setInitiated(true);
-    // Check if API is available
-    fetch("/api/jayy", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages: [{ role: "user", content: "ping" }], pageContext: location.pathname }) })
-      .then(r => { if (!r.ok) setShowFallback(true); })
-      .catch(() => setShowFallback(true));
-  }, [initiated, location.pathname]);
+  }, [initiated, getGreeting]);
 
-  const handleOpen = () => { setOpen(true); setShowPopupHint(false); if (!initiated) initJayy(); };
+  const handleOpen = () => {
+    setOpen(true);
+    setPopupVisible(false);
+    setPopupDismissed(true);
+    if (!initiated) initJayy();
+  };
 
-  const sendMessage = useCallback(async (text?: string) => {
-    const userText = (text || input).trim();
-    if (!userText || loading) return;
-    setInput("");
-    const userMsg: Message = { role: "user", content: userText };
-    const updatedMsgs = [...messages, userMsg];
-    setMessages(updatedMsgs);
-    setLoading(true);
-    try {
-      const res = await fetch("/api/jayy", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: updatedMsgs.map(m => ({ role: m.role, content: m.content })), pageContext: location.pathname }),
-      });
-      if (res.status === 429) { setMessages(prev => [...prev, { role: "assistant", content: "Just a moment — try again in a minute." }]); return; }
-      if (!res.ok) throw new Error();
-      const data = await res.json();
-      const reply: string = data.reply || "";
-      // Detect snapshot trigger words
-      const lower = reply.toLowerCase();
-      if ((lower.includes("snapshot") || lower.includes("here's what i've noted") || lower.includes("here is what i've noted")) && answers.service) {
-        const priceMatch = reply.match(/\$[\d,]+(?:\s*[-–—]\s*\$[\d,]+)?(?:\s*AUD)?/i);
-        setSnapshot({
-          business: answers.business || userText,
-          service: answers.service,
-          timeline: answers.timeline || "To be confirmed",
-          priceRange: priceMatch ? priceMatch[0] : PRICING_MAP[answers.budget || ""] || "from AUD $499",
-        });
-      }
-      setMessages(prev => [...prev, { role: "assistant", content: reply }]);
-    } catch { setShowFallback(true); } finally { setLoading(false); }
-  }, [input, messages, loading, location.pathname, answers]);
+  const handleReset = () => {
+    setMessages([]);
+    setSnapshot(null);
+    setAnswers({});
+    setStep(0);
+    setInitiated(false);
+    sessionStorage.removeItem(SESSION_KEY);
+    setTimeout(() => {
+      setMessages([{ role: "assistant", content: getGreeting() }]);
+      setInitiated(true);
+    }, 80);
+  };
 
-  const handleFallbackAnswer = (value: string) => {
-    const current = STEPS[step];
-    const newAnswers = { ...answers, [current.key]: value };
+  // ── Fallback step answer ──
+  const handleAnswer = (value: string) => {
+    const curr = STEPS[step];
+    const newAnswers = { ...answers, [curr.key]: value };
     setAnswers(newAnswers);
     const userMsg: Message = { role: "user", content: value };
-    const nextStep = step + 1;
-    if (nextStep < STEPS.length) {
-      setStep(nextStep);
-      setMessages(prev => [...prev, userMsg, { role: "assistant", content: STEPS[nextStep].q }]);
+    const next = step + 1;
+
+    if (next < STEPS.length) {
+      setStep(next);
+      const nextStep = STEPS[next];
+      setMessages(prev => [
+        ...prev,
+        userMsg,
+        { role: "assistant", content: `${nextStep.q}${nextStep.sub ? `\n\n${nextStep.sub}` : ""}` },
+      ]);
     } else {
+      // Build snapshot
       const snap: Snapshot = {
         business: newAnswers.business || "Your business",
         service: newAnswers.service || "Website Design",
@@ -230,21 +259,30 @@ export function JayyWidget() {
         priceRange: PRICING_MAP[newAnswers.budget || ""] || "from AUD $499",
       };
       setSnapshot(snap);
-      setMessages(prev => [...prev, userMsg, { role: "assistant", content: "Here's your project snapshot. Choose how you'd like to move forward:" }]);
+      setMessages(prev => [
+        ...prev,
+        userMsg,
+        { role: "assistant", content: `Here's your project snapshot based on what you've told me.\n\nChoose how you'd like to move forward — I'll make sure the team has everything they need.` },
+      ]);
     }
   };
 
-  const handleFallbackText = () => { const t = input.trim(); if (!t) return; setInput(""); handleFallbackAnswer(t); };
-  const handleReset = () => { setMessages([]); setSnapshot(null); setAnswers({}); setStep(0); setInitiated(false); setShowFallback(false); sessionStorage.removeItem(SESSION_KEY); setTimeout(() => initJayy(), 100); };
+  const handleTextSubmit = () => {
+    const t = input.trim();
+    if (!t) return;
+    setInput("");
+    handleAnswer(t);
+  };
 
+  // ── Snapshot actions ──
   const handleEmail = () => {
     if (!snapshot) return;
-    const body = `Hi Kyvro Digital,\n\nHere's my project snapshot:\n\nBusiness: ${snapshot.business}\nService: ${snapshot.service}\nTimeline: ${snapshot.timeline}\nBudget: ${snapshot.priceRange}\n\nLooking forward to chatting!\n\nKind regards`;
-    window.location.href = `mailto:${EMAIL}?subject=Project Enquiry — ${snapshot.service}&body=${encodeURIComponent(body)}`;
+    const body = `Hi Kyvro Digital,\n\nHere's my project snapshot:\n\nBusiness: ${snapshot.business}\nService: ${snapshot.service}\nTimeline: ${snapshot.timeline}\nBudget range: ${snapshot.priceRange}\n\nLooking forward to chatting!\n\nKind regards`;
+    window.location.href = `mailto:${EMAIL}?subject=Enquiry — ${snapshot.service}&body=${encodeURIComponent(body)}`;
   };
   const handleWhatsApp = () => {
     if (!snapshot) return;
-    const text = `Hi Kyvro Digital 👋\n\nProject snapshot:\n\n📋 *${snapshot.business}*\nService: ${snapshot.service}\nTimeline: ${snapshot.timeline}\nBudget: ${snapshot.priceRange}\n\nWould love to chat!`;
+    const text = `Hi Kyvro Digital 👋\n\nProject snapshot:\n\n*${snapshot.business}*\nService: ${snapshot.service}\nTimeline: ${snapshot.timeline}\nBudget: ${snapshot.priceRange}\n\nWould love to chat!`;
     window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(text)}`, "_blank");
   };
   const handleForm = () => {
@@ -252,120 +290,257 @@ export function JayyWidget() {
     window.location.href = `/contact?service=${encodeURIComponent(snapshot.service)}&details=${encodeURIComponent(`Business: ${snapshot.business}. Timeline: ${snapshot.timeline}. Budget: ${snapshot.priceRange}.`)}`;
   };
 
-  const wireBlocks = getWireframeBlocks(messages);
   const currentStep = STEPS[step];
+  const isComplete = !!snapshot;
 
   return (
     <>
       <style>{`
-        @keyframes jayyFadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-        @keyframes jayySlideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-        @keyframes jayyPulse{0%,80%,100%{opacity:0.3}40%{opacity:1}}
-        @keyframes jayyPop{from{opacity:0;transform:scale(0.85) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
-        .jayy-panel{animation:jayySlideUp 0.28s cubic-bezier(.16,1,.3,1)}
-        .jayy-msg{animation:jayyFadeIn 0.3s ease}
-        .jayy-input:focus{outline:none;border-color:#D29B3C!important;box-shadow:0 0 0 2px #D29B3C20}
-        .jayy-opt:hover{background:#f0ebe3!important;border-color:#D29B3C!important}
+        @keyframes jFadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes jSlideUp{from{opacity:0;transform:translateY(20px) scale(0.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+        @keyframes jPulse{0%,80%,100%{opacity:0.25;transform:scale(0.8)}40%{opacity:1;transform:scale(1)}}
+        @keyframes jPop{from{opacity:0;transform:scale(0.88) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+        @keyframes jGlow{0%,100%{box-shadow:0 0 0 0 rgba(210,155,60,0.4)}50%{box-shadow:0 0 0 8px rgba(210,155,60,0)}}
+        .j-msg{animation:jFadeUp 0.3s ease}
+        .j-panel{animation:jSlideUp 0.3s cubic-bezier(.16,1,.3,1)}
+        .j-input:focus{outline:none!important;border-color:#D29B3C!important;box-shadow:0 0 0 3px rgba(210,155,60,0.12)!important}
+        .j-opt{transition:all 0.15s!important}
+        .j-opt:hover{background:#fff8ee!important;border-color:#D29B3C!important;color:#0A0907!important}
+        .j-fab{transition:transform 0.2s,box-shadow 0.2s}
+        .j-fab:hover{transform:scale(1.07)!important;box-shadow:0 8px 28px rgba(210,155,60,0.35)!important}
         @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
       `}</style>
 
+      {/* ── FAB + popup ── */}
       {!open && (
-        <div style={{ position: "fixed", bottom: 24, right: 24, zIndex: 9999, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 10 }}>
-          {showPopupHint && (
-            <div onClick={handleOpen} style={{ background: "#0A0907", color: "#FAF7F2", borderRadius: "12px 12px 4px 12px", padding: "12px 16px", fontSize: 13, maxWidth: 230, lineHeight: 1.45, boxShadow: "0 8px 28px rgba(0,0,0,0.22)", cursor: "pointer", animation: "jayyPop 0.4s cubic-bezier(.16,1,.3,1)" }}>
-              Hey 👋 I'm Jayy — I can help you figure out what you need online.
-              <div style={{ color: "#D29B3C", fontSize: 11, marginTop: 8, fontWeight: 600 }}>Tap to chat →</div>
+        <div style={{ position: "fixed", bottom: 28, right: 28, zIndex: 9999, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 12 }}>
+
+          {/* Popup bubble */}
+          {popupVisible && !popupDismissed && (
+            <div style={{ animation: "jPop 0.45s cubic-bezier(.16,1,.3,1)", position: "relative" }}>
+              <div
+                onClick={handleOpen}
+                style={{
+                  background: "#FAF7F2",
+                  border: "1.5px solid #e8e3dc",
+                  borderRadius: "16px 16px 4px 16px",
+                  padding: "14px 16px",
+                  maxWidth: 240,
+                  boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
+                  cursor: "pointer",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <div style={{ width: 28, height: 28, borderRadius: 8, background: "#D29B3C", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 800, color: "#0A0907", flexShrink: 0 }}>J</div>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "#0A0907" }}>Jayy</span>
+                  <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#2ecc71", marginLeft: "auto" }} />
+                </div>
+                <div style={{ fontSize: 13, color: "#3a3530", lineHeight: 1.5 }}>
+                  Hey 👋 I can help you figure out what your business needs online.
+                </div>
+                <div style={{ fontSize: 12, color: "#D29B3C", fontWeight: 600, marginTop: 8 }}>
+                  Let's chat →
+                </div>
+              </div>
+              {/* Dismiss */}
+              <button
+                onClick={e => { e.stopPropagation(); setPopupVisible(false); setPopupDismissed(true); }}
+                style={{ position: "absolute", top: -8, right: -8, width: 20, height: 20, borderRadius: "50%", background: "#e8e3dc", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "#6b6560" }}
+              >×</button>
             </div>
           )}
-          <button onClick={handleOpen} aria-label="Open Jayy assistant"
-            style={{ width: 56, height: 56, borderRadius: "50%", background: "#0A0907", border: "2px solid #D29B3C", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 20px rgba(0,0,0,0.25)", position: "relative", transition: "transform 0.2s" }}
-            onMouseEnter={e => (e.currentTarget.style.transform = "scale(1.08)")}
-            onMouseLeave={e => (e.currentTarget.style.transform = "scale(1)")}>
-            <MessageCircle size={22} color="#D29B3C" />
-            <span style={{ position: "absolute", top: 0, right: 0, width: 14, height: 14, background: "#D29B3C", borderRadius: "50%", border: "2px solid #FAF7F2" }} />
+
+          {/* FAB button */}
+          <button
+            className="j-fab"
+            onClick={handleOpen}
+            aria-label="Open Jayy assistant"
+            style={{
+              width: 58, height: 58, borderRadius: "50%",
+              background: "#FAF7F2",
+              border: "2px solid #D29B3C",
+              cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              boxShadow: "0 4px 20px rgba(0,0,0,0.12)",
+              position: "relative",
+              animation: "jGlow 3s ease 6s 4",
+            }}
+          >
+            <div style={{ width: 32, height: 32, borderRadius: 9, background: "#D29B3C", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 800, color: "#0A0907" }}>J</div>
+            <span style={{ position: "absolute", top: 2, right: 2, width: 12, height: 12, background: "#2ecc71", borderRadius: "50%", border: "2px solid #FAF7F2" }} />
           </button>
         </div>
       )}
 
+      {/* ── Chat panel ── */}
       {open && (
-        <div className="jayy-panel" role="dialog" aria-label="Jayy assistant" aria-modal="true"
-          style={{ position: "fixed", bottom: 24, right: 24, width: "min(400px, calc(100vw - 32px))", height: "min(620px, calc(100vh - 48px))", background: "#FAF7F2", border: "1px solid #e8e3dc", borderRadius: 16, boxShadow: "0 24px 64px rgba(0,0,0,0.22)", display: "flex", flexDirection: "column", zIndex: 9999, overflow: "hidden" }}>
-          <div style={{ background: "#0A0907", padding: "14px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
+        <div
+          className="j-panel"
+          role="dialog"
+          aria-label="Jayy assistant"
+          aria-modal="true"
+          style={{
+            position: "fixed",
+            bottom: 28, right: 28,
+            width: "min(420px, calc(100vw - 32px))",
+            height: "min(640px, calc(100vh - 52px))",
+            background: "#FAF7F2",
+            border: "1.5px solid #e0dbd4",
+            borderRadius: 20,
+            boxShadow: "0 24px 72px rgba(0,0,0,0.14), 0 4px 16px rgba(0,0,0,0.06)",
+            display: "flex", flexDirection: "column",
+            zIndex: 9999, overflow: "hidden",
+          }}
+        >
+          {/* ─ Header ─ */}
+          <div style={{
+            background: "#FAF7F2",
+            borderBottom: "1px solid #ede8e1",
+            padding: "14px 16px",
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            flexShrink: 0,
+          }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div style={{ width: 36, height: 36, borderRadius: 10, background: "#D29B3C", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 800, color: "#0A0907" }}>J</div>
+              <div style={{ width: 38, height: 38, borderRadius: 11, background: "#D29B3C", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17, fontWeight: 800, color: "#0A0907", position: "relative" }}>
+                J
+                <div style={{ position: "absolute", bottom: 0, right: 0, width: 10, height: 10, background: "#2ecc71", borderRadius: "50%", border: "2px solid #FAF7F2" }} />
+              </div>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: "#FAF7F2" }}>Jayy</div>
-                <div style={{ fontSize: 10, color: "#6b6560" }}>Kyvro Digital · instant replies</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#0A0907", lineHeight: 1.2 }}>Jayy</div>
+                <div style={{ fontSize: 10, color: "#9b9590", letterSpacing: "0.02em" }}>Kyvro Digital assistant · online</div>
               </div>
             </div>
-            <div style={{ display: "flex", gap: 6 }}>
-              <button onClick={handleReset} title="Start over" style={{ background: "none", border: "none", cursor: "pointer", color: "#6b6560", padding: 4 }}><RotateCcw size={13} /></button>
-              <button onClick={() => setOpen(false)} aria-label="Close" style={{ background: "none", border: "none", cursor: "pointer", color: "#6b6560", padding: 4 }}><X size={16} /></button>
+            <div style={{ display: "flex", gap: 4 }}>
+              <button onClick={handleReset} title="Start over" aria-label="Start over"
+                style={{ background: "none", border: "1px solid #e8e3dc", borderRadius: 8, cursor: "pointer", color: "#9b9590", padding: "5px 8px", display: "flex", alignItems: "center" }}>
+                <RotateCcw size={12} />
+              </button>
+              <button onClick={() => setOpen(false)} aria-label="Close"
+                style={{ background: "none", border: "1px solid #e8e3dc", borderRadius: 8, cursor: "pointer", color: "#9b9590", padding: "5px 8px", display: "flex", alignItems: "center" }}>
+                <X size={14} />
+              </button>
             </div>
           </div>
 
-          <div role="log" aria-live="polite" style={{ flex: 1, overflowY: "auto", padding: "14px 14px 8px", display: "flex", flexDirection: "column", gap: 8 }}>
+          {/* ─ Messages ─ */}
+          <div
+            role="log"
+            aria-live="polite"
+            style={{ flex: 1, overflowY: "auto", padding: "16px 16px 8px", display: "flex", flexDirection: "column", gap: 10, scrollbarWidth: "thin", scrollbarColor: "#e0dbd4 transparent" }}
+          >
             {messages.map((msg, i) => (
-              <div key={i} className="jayy-msg" style={{ display: "flex", justifyContent: msg.role === "user" ? "flex-end" : "flex-start", alignItems: "flex-start" }}>
-                {msg.role === "assistant" && <div style={{ width: 24, height: 24, borderRadius: 6, background: "#D29B3C", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 800, color: "#0A0907", flexShrink: 0, marginRight: 8, marginTop: 2 }}>J</div>}
-                <div style={{ maxWidth: "82%", background: msg.role === "user" ? "#0A0907" : "#fff", color: msg.role === "user" ? "#FAF7F2" : "#0A0907", border: msg.role === "assistant" ? "1px solid #e8e3dc" : "none", borderRadius: msg.role === "user" ? "12px 12px 4px 12px" : "4px 12px 12px 12px", padding: "10px 13px", fontSize: 13, lineHeight: 1.55, whiteSpace: "pre-wrap" }}>
+              <div key={i} className="j-msg" style={{ display: "flex", justifyContent: msg.role === "user" ? "flex-end" : "flex-start", alignItems: "flex-end", gap: 8 }}>
+                {msg.role === "assistant" && (
+                  <div style={{ width: 26, height: 26, borderRadius: 7, background: "#D29B3C", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 800, color: "#0A0907", flexShrink: 0, marginBottom: 2 }}>J</div>
+                )}
+                <div style={{
+                  maxWidth: "78%",
+                  background: msg.role === "user" ? "#0A0907" : "#fff",
+                  color: msg.role === "user" ? "#FAF7F2" : "#1a1714",
+                  border: msg.role === "assistant" ? "1px solid #ede8e1" : "none",
+                  borderRadius: msg.role === "user" ? "16px 16px 4px 16px" : "4px 16px 16px 16px",
+                  padding: "11px 14px",
+                  fontSize: 13, lineHeight: 1.6,
+                  whiteSpace: "pre-wrap",
+                  boxShadow: msg.role === "assistant" ? "0 1px 4px rgba(0,0,0,0.04)" : "none",
+                }}>
                   {msg.content}
                 </div>
               </div>
             ))}
 
-            {wireBlocks.length > 0 && messages.length > 2 && <div style={{ paddingLeft: 32 }}><WireframePreview blocks={wireBlocks} /></div>}
-            {snapshot && <div style={{ paddingLeft: 32 }}><SnapshotCard snapshot={snapshot} onEmail={handleEmail} onWhatsApp={handleWhatsApp} onForm={handleForm} /></div>}
+            {/* Snapshot */}
+            {snapshot && (
+              <div className="j-msg" style={{ paddingLeft: 34 }}>
+                <SnapshotCard snapshot={snapshot} onEmail={handleEmail} onWhatsApp={handleWhatsApp} onForm={handleForm} />
+              </div>
+            )}
 
-            {showFallback && !snapshot && currentStep?.type === "options" && (
-              <div style={{ paddingLeft: 32, display: "flex", flexWrap: "wrap", gap: 6, marginTop: 4 }}>
+            {/* Option buttons */}
+            {!isComplete && !loading && currentStep?.type === "options" && messages.length > 0 && (
+              <div className="j-msg" style={{ paddingLeft: 34, display: "flex", flexWrap: "wrap", gap: 7, marginTop: 2 }}>
                 {currentStep.options?.map(opt => (
-                  <button key={opt} className="jayy-opt" onClick={() => handleFallbackAnswer(opt)}
-                    style={{ background: "#fff", border: "1px solid #e8e3dc", borderRadius: 20, padding: "6px 14px", fontSize: 12, cursor: "pointer", fontFamily: "inherit", color: "#0A0907", transition: "all 0.15s" }}>
-                    {opt}
-                  </button>
+                  <button
+                    key={opt}
+                    className="j-opt"
+                    onClick={() => handleAnswer(opt)}
+                    style={{
+                      background: "#fff",
+                      border: "1.5px solid #e0dbd4",
+                      borderRadius: 24,
+                      padding: "7px 15px",
+                      fontSize: 12,
+                      cursor: "pointer",
+                      fontFamily: "inherit",
+                      color: "#3a3530",
+                      fontWeight: 500,
+                    }}
+                  >{opt}</button>
                 ))}
               </div>
             )}
 
+            {/* Typing indicator */}
             {loading && (
-              <div className="jayy-msg" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <div style={{ width: 24, height: 24, borderRadius: 6, background: "#D29B3C", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 800, color: "#0A0907", flexShrink: 0 }}>J</div>
-                <div style={{ background: "#fff", border: "1px solid #e8e3dc", borderRadius: "4px 12px 12px 12px", padding: "12px 16px", display: "flex", gap: 4 }}>
-                  {[0,1,2].map(i => <div key={i} style={{ width: 6, height: 6, borderRadius: "50%", background: "#D29B3C", animation: `jayyPulse 1.2s ease ${i*0.2}s infinite` }} />)}
+              <div className="j-msg" style={{ display: "flex", alignItems: "flex-end", gap: 8 }}>
+                <div style={{ width: 26, height: 26, borderRadius: 7, background: "#D29B3C", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 800, color: "#0A0907", flexShrink: 0 }}>J</div>
+                <div style={{ background: "#fff", border: "1px solid #ede8e1", borderRadius: "4px 16px 16px 16px", padding: "13px 18px", display: "flex", gap: 5, alignItems: "center" }}>
+                  {[0, 1, 2].map(i => (
+                    <div key={i} style={{ width: 7, height: 7, borderRadius: "50%", background: "#D29B3C", animation: `jPulse 1.2s ease ${i * 0.18}s infinite` }} />
+                  ))}
                 </div>
               </div>
             )}
+
             <div ref={messagesEndRef} />
           </div>
 
-          {!snapshot && (
-            <div style={{ padding: "10px 14px 14px", borderTop: "1px solid #e8e3dc", flexShrink: 0, background: "#FAF7F2" }}>
-              {showFallback && currentStep?.type === "text" ? (
-                <div style={{ display: "flex", gap: 8 }}>
-                  <input ref={inputRef} className="jayy-input" value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === "Enter") handleFallbackText(); }} placeholder={currentStep.placeholder || "Type here..."}
-                    style={{ flex: 1, border: "1px solid #e8e3dc", borderRadius: 8, padding: "9px 13px", fontSize: 13, fontFamily: "inherit", background: "#fff", color: "#0A0907", transition: "all 0.15s" }} />
-                  <button onClick={handleFallbackText} style={{ background: "#0A0907", color: "#FAF7F2", border: "none", borderRadius: 8, padding: "9px 13px", cursor: "pointer" }}><ChevronRight size={15} /></button>
-                </div>
-              ) : !showFallback ? (
-                <div style={{ display: "flex", gap: 8 }}>
-                  <input ref={inputRef} className="jayy-input" value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } }} placeholder="Ask anything..." disabled={loading} aria-label="Message Jayy"
-                    style={{ flex: 1, border: "1px solid #e8e3dc", borderRadius: 8, padding: "9px 13px", fontSize: 13, fontFamily: "inherit", background: "#fff", color: "#0A0907", transition: "all 0.15s" }} />
-                  <button onClick={() => sendMessage()} disabled={loading || !input.trim()} aria-label="Send"
-                    style={{ background: input.trim() && !loading ? "#0A0907" : "#e8e3dc", color: input.trim() && !loading ? "#FAF7F2" : "#9b9590", border: "none", borderRadius: 8, padding: "9px 13px", cursor: input.trim() ? "pointer" : "default", transition: "all 0.15s" }}>
-                    <Send size={14} />
-                  </button>
-                </div>
-              ) : null}
-              <div style={{ fontSize: 10, color: "#c0b8b0", textAlign: "center", marginTop: 8 }}>Kyvro Digital · kyvrodigital.com</div>
-            </div>
-          )}
+          {/* ─ Input area ─ */}
+          <div style={{ borderTop: "1px solid #ede8e1", padding: "12px 16px 16px", flexShrink: 0, background: "#FAF7F2" }}>
+            {!isComplete && currentStep?.type === "text" && (
+              <div style={{ display: "flex", gap: 8 }}>
+                <input
+                  ref={inputRef}
+                  className="j-input"
+                  value={input}
+                  onChange={e => setInput(e.target.value)}
+                  onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleTextSubmit(); } }}
+                  placeholder={currentStep.placeholder || "Type your answer..."}
+                  style={{
+                    flex: 1, border: "1.5px solid #e0dbd4", borderRadius: 12,
+                    padding: "10px 14px", fontSize: 13, fontFamily: "inherit",
+                    background: "#fff", color: "#0A0907",
+                    transition: "border-color 0.15s, box-shadow 0.15s",
+                  }}
+                />
+                <button
+                  onClick={handleTextSubmit}
+                  disabled={!input.trim()}
+                  aria-label="Send"
+                  style={{
+                    background: input.trim() ? "#D29B3C" : "#ede8e1",
+                    color: input.trim() ? "#0A0907" : "#b0a898",
+                    border: "none", borderRadius: 12, padding: "10px 14px",
+                    cursor: input.trim() ? "pointer" : "default",
+                    transition: "all 0.15s", display: "flex", alignItems: "center",
+                  }}
+                >
+                  <Send size={14} />
+                </button>
+              </div>
+            )}
 
-          {snapshot && (
-            <div style={{ padding: "10px 14px 14px", borderTop: "1px solid #e8e3dc", flexShrink: 0, textAlign: "center" }}>
-              <button onClick={handleReset} style={{ background: "none", border: "none", color: "#6b6560", fontSize: 12, cursor: "pointer", textDecoration: "underline", fontFamily: "inherit" }}>Start a new conversation</button>
+            {isComplete && (
+              <button onClick={handleReset}
+                style={{ width: "100%", background: "none", border: "1.5px solid #e0dbd4", borderRadius: 12, padding: "10px", color: "#9b9590", fontSize: 12, cursor: "pointer", fontFamily: "inherit" }}>
+                Start a new conversation
+              </button>
+            )}
+
+            <div style={{ fontSize: 10, color: "#c8c0b6", textAlign: "center", marginTop: 10, letterSpacing: "0.02em" }}>
+              Kyvro Digital · kyvrodigital.com
             </div>
-          )}
+          </div>
         </div>
       )}
     </>
