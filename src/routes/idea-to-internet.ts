@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Linux } from "@tanstack/react-router";
 import { Section, Eyebrow } from "@/components/site/Section";
 import { CtaPrimary, CtaGhost } from "@/components/site/CtaButton";
 import { ideaToInternet } from "@/lib/content";
